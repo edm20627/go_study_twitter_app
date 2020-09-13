@@ -2,7 +2,7 @@ package ob
 
 import (
     "fmt"
-    "go_example/model"
+    "go_sample/model"
     "time"
 
     "github.com/objectbox/objectbox-go/objectbox"
