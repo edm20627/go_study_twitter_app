@@ -30,9 +30,37 @@
           "type": 6
         }
       ]
+    },
+    {
+      "id": "2:2014826812304928544",
+      "lastPropertyId": "4:7628191110112539414",
+      "name": "Favorite",
+      "properties": [
+        {
+          "id": "1:3963706325082474683",
+          "name": "Id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:4796460869877274520",
+          "name": "Name",
+          "type": 9
+        },
+        {
+          "id": "3:7395322990810944184",
+          "name": "Description",
+          "type": 9
+        },
+        {
+          "id": "4:7628191110112539414",
+          "name": "CreatedAt",
+          "type": 9
+        }
+      ]
     }
   ],
-  "lastEntityId": "1:23388513512697388",
+  "lastEntityId": "2:2014826812304928544",
   "lastIndexId": "",
   "lastRelationId": "",
   "modelVersion": 5,
