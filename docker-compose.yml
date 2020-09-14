@@ -2,9 +2,35 @@ version: '3'
 
 services:
     app:
-        build: .
+        build:
+            context: ./docker/golang
         tty: true
+        environment:
+            - TZ=Japan
         volumes:
             - .:/go/src
         ports:
-            - "8081:8080"
+            - 8081:8080
+        depends_on:
+            - mysql
+    mysql:
+        build:
+            context: ./docker/mysql
+        environment:
+            - TZ=Japan
+            - MYSQL_ROOT_PASSWORD=root
+            # - "MYSQL_USER=root"
+            # - "MYSQL_PASSWORD=root"
+            # - "MYSQL_DATABASE=root"
+        # オプションは日本語文の字化けに対応
+        command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --skip-character-set-client-handshake
+        volumes:
+            - ./docker/mysql/my.conf:/etc/mysql/my.conf
+            - ./docker/mysql/init/:/docker-entrypoint-initdb.d
+            - mysql-data:/var/lib/mysql
+        ports:
+            - 3306:3306
+
+volumes:
+    mysql-data:
+        driver: local
