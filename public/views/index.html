@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <title>にゃイッター</title>
+  <!---Twitter Card-->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:creator" content="@test" />
+  <meta property="og:url" content="https://test" />
+  <meta property="og:title" content="にゃイッター" />
+  <meta property="og:description" content="猫語でツイートしてくれるアプリ！" />
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="css/common.css" rel="stylesheet">
+  <!-- BootstrapのCSS読み込み -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- jQuery読み込み -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- BootstrapのJS読み込み -->
+  <script src="js/bootstrap.min.js"></script>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="row">
+      <div style="padding:15px">
+        <div class="card">
+          <div class="media">
+            <img class="d-flex align-self-end mr-3 thumnail" src="https://avatars2.githubusercontent.com/edm20627" alt="Generic placeholder image">
+            <div class="media-body">
+              <p class="mb-0"><a href="https://github.com/edm20627">Github : @edm20627</a></p>
+            </div>
+          </div>
+        </div>
+        <div class="button_wrapper">
+          <p class="button">
+            <button type="submit" id="start" class="btn btn-dark">スタートにゃ</button>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    $(function () {
+      // Ajax button click
+      $('#start').on('click', function () {
+        $.ajax({
+          async: true,
+          url: 'check',
+          type: 'POST',
+        })
+          // Ajaxリクエストが成功した時発動
+          .done((data, textStatus, jqXHR) => {
+            if (jqXHR.status == 200) {
+              window.location.href = "./tweet";
+            } else {
+              window.location.href = "./auth";
+            }
+          })
+          // Ajaxリクエストが失敗した時発動
+          .fail((data) => {
+            window.location.href = "./auth";
+          })
+      });
+    });
+  </script>
+</body>
+
+</html>

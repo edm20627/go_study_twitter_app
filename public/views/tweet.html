@@ -1,12 +1,247 @@
-<html>
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <title>ツイートするにゃ</title>
+  <!---Twitter Card-->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:creator" content="@test" />
+  <meta property="og:url" content="https://test" />
+  <meta property="og:title" content="にゃイッター" />
+  <meta property="og:description" content="猫語でツイートしてくれるアプリ！" />
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="css/common.css" rel="stylesheet">
+  <!-- BootstrapのCSS読み込み -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- jQuery読み込み -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <!-- BootstrapのJS読み込み -->
+  <script src="js/bootstrap.min.js"></script>
+</head>
 
 <body>
+  <div class="container-fluid">
+    <div class="row">
+      <div style="padding:15px">
+        <form class="text_filed">
+          <span class="help-block">入力するにゃ</span>
+          <textarea id="input_field" class="form-control" rows="2" maxlength="120">{{.Tweet}}</textarea>
+          <h6 class="pull-right text-right" id="input_count_message">0 / 120</h6>
+          <span class="help-block">プレビューにゃ</span>
+          <textarea id="preview_field" class="form-control" rows="2" style="background: #eeeeee;"></textarea>
+          <h6 class="pull-right text-right" id="preview_count_message">0 / 140</h6>
 
-    <blockquote class="twitter-tweet">
-        <p lang="ja" dir="ltr">{{.Text}}</p>&mdash; {{.User}} (@{{.ScreenName}}) <a href='https://twitter.com/{{.Id}}/status/{{.TweetId}}'>{{.Date}}</a>
-    </blockquote>
-    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+          <div class="justify-content-center">
+            <span class="help-block">画像も入れられるにゃ</span>
+            <div class="card">
+               <div class="thumbnail"><img id="imagePreview" style="width:40%"></img></div>
+            </div>
+            <div class="input-group">
+              <label class="input-group-btn">
+                <span class="btn btn-outline-dark">
+                  画像を選ぶにゃ<input type="file" style="display:none" id="inputFile" class="uploadFile">
+                </span>
+              </label>
+              <label class="input-group-btn">
+                <span class="btn btn-outline-secondary">
+                  キャンセルにゃ<input type="submit" style="display:none" id="inputFileReset" class="uploadFile">
+                </span>
+              </label>
+            </div>
+          </div>
+          <div  style="margin-top:30px;"></div>
+          <span class="help-block">リプライするツイートのリンクを入力するにゃ</span>
+          <textarea id="reply_field" class="form-control" rows="1" maxlength="120">{{.Reply}}</textarea>
+        </form>
 
+        <div class="button_wrapper" id="tweet_button">
+          <p class="button">
+            <div id="tweet_button_wrap">
+              <button type="submit" id="clear" data-toggle="collapse" class="btn btn-outline-primary">クリアにゃ</button>
+              <button type="submit" id="tweet" data-toggle="collapse" class="btn btn-primary">ツイートにゃ</button>
+            </div>
+            <div id="indicator_button_wrap" style="display: none;">
+              <button class="btn btn-primary" id="indicator" type="button" disabled>
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Loading...
+              </button>
+            </div>
+          </p>
+        </div>
+        <div class="alert alert-primary" id="complete" style="display:none;" role="alert">
+          <strong>成功にゃ！！</strong>
+          <a id="link_btn" href="#" target="_blank">ツイートを確認しに行くにゃ</a>
+        </div>
+
+        <div class="button_wrapper" id="tweet_button">
+          <p class="button">
+            <div id="tweet_button_wrap">
+              <button type="submit" id="logout" data-toggle="collapse" class="btn btn-outline-primary">ログアウトにゃ</button>
+            </div>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    document.getElementById('inputFileReset').addEventListener('click', function() {
+      var elem = document.getElementById('inputFile');
+      elem.value = '';
+      elem.dispatchEvent(new Event('change'));
+      $('#imagePreview').remove();
+    });
+
+    document.getElementById('inputFile').addEventListener('change', function (e) {
+      // 1枚だけ表示する
+      var file = e.target.files[0];
+      // ファイルリーダー作成
+      var fileReader = new FileReader();
+      fileReader.onload = function () {
+        // Data URIを取得
+        var dataUri = this.result;
+        // img要素に表示
+        var img = document.getElementById('imagePreview');
+        img.src = dataUri;
+      }
+      // ファイルをData URIとして読み込む
+      fileReader.readAsDataURL(file);
+    });
+
+    $(function () {
+      var $textarea = $('#input_field');
+      var lineHeight = parseInt($textarea.css('lineHeight'));
+      $textarea.on('input', function (e) {
+        var lines = ($(this).val() + '\n').match(/\n/g).length + 1;
+        $(this).height(lineHeight * lines);
+      });
+    });
+
+    function loadInputTextCount() {
+      var text_max = 110;
+      var text_length = $('#input_field').val().length;
+      document.getElementById('input_count_message').innerHTML = text_length + " / " + text_max
+    }
+
+    function loadPreviewTextCount() {
+      var preview_text_max = 125;
+      var preview_text_length = $('#preview_field').val().length;
+      document.getElementById('preview_count_message').innerHTML = preview_text_length + " / " + preview_text_max
+      var $textarea = $('#preview_field');
+      var lineHeight = parseInt($textarea.css('lineHeight'));
+      var lines = ($('#preview_field').val() + '\n').match(/\n/g).length + 1;
+      $('#preview_field').height(lineHeight * lines);
+    }
+
+    $(function () {
+      $('#input_field').trigger("keyup")
+    });
+
+    $('#input_field').keyup(function () {
+      loadInputTextCount();
+      var input = $('#input_field').val()
+
+      $.ajax({
+        async: true,
+        url: 'replace',
+        type: 'POST',
+        data: {
+          "message": input
+        }
+      })
+        .done((data, textStatus, jqXHR) => {
+          if (jqXHR.status == 200) {
+            $('#preview_field').val(data)
+            $("#complete").css("display", "none")
+            loadPreviewTextCount();
+          } else if (jqXHR.status == 400) {
+            alert("文字数が限界を超えたにゃ\n気をつけるにゃ\n出直すにゃ")
+          } else {
+            alert("失敗にゃ\nごめんにゃ")
+          }
+        })
+        .fail((data, textStatus, jqXHR) => {
+          alert("失敗にゃ\nごめんにゃ")
+        })
+    });
+
+
+    $(function () {
+      $('#clear').on('click', function () {
+        $('#input_field').val("")
+        $('#preview_field').val("")
+        $('#reply_field').val("")
+        $('#complete').css("display", "none")
+        document.cookie = "message=; max-age=0"
+        document.cookie = "reply=; max-age=0"
+      })
+    });
+
+    $(function () {
+      $('#logout').on('click', function () {
+        document.cookie = "message=; max-age=0"
+        document.cookie = "reply=; max-age=0"
+        document.cookie = "ESESSION=; max-age=0"
+        window.location.href = "logout"
+      })
+    });
+
+    function ImageToBase64(img, mime_type) {
+      // New Canvas
+      var canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      // Draw Image
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0);
+      // To Base64
+      return canvas.toDataURL(mime_type);
+    }
+
+    $(function () {
+      $('#tweet').on('click', function () {
+        var tweet = $('#preview_field').val()
+        var input = $('#input_field').val()
+        var link = $('#reply_field').val()
+        var img = document.getElementById('imagePreview');
+        var b64 = ImageToBase64(img, "image/jpeg");
+        if (tweet == "") {
+          alert("失敗にゃ\n入力されてないにゃ")
+          return
+        }
+        $("#tweet_button_wrap").css("display", "none")
+        $("#indicator_button_wrap").css("display", "block")
+        $.ajax({
+          async: true,
+          url: 'post',
+          type: 'POST',
+          data: {
+            "message": tweet,
+            "input": input,
+            "reply": link,
+            "image": b64
+          }
+        })
+          .done((data, textStatus, jqXHR) => {
+            if (jqXHR.status == 202) {
+              var res = confirm("また認証してほしいにゃ")
+              return
+            }
+            $("#link_btn").attr("href", data)
+            $("#complete").css("display", "block")
+          })
+          .fail((data, textStatus, jqXHR) => {
+            alert("失敗にゃ\nごめんにゃ")
+          })
+          .always((data) => {
+            $("#tweet_button_wrap").css("display", "block")
+            $("#indicator_button_wrap").css("display", "none")
+          })
+      });
+    });
+  </script>
 </body>
-
 </html>
