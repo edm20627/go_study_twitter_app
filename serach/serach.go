@@ -21,7 +21,7 @@ func Tweet(c echo.Context) error {
 		tweet.TweetId = data.IdStr
 		break
 	}
-	return c.Render(http.StatusOK, "tweet.html", tweet)
+	return c.Render(http.StatusOK, "test_tweet.html", tweet)
 }
 
 func Tweets(c echo.Context) error {
@@ -39,7 +39,7 @@ func Tweets(c echo.Context) error {
 		tweet.TweetId = data.IdStr
 		tweets = append(tweets, tweet)
 	}
-	return c.Render(http.StatusOK, "tweets.html", tweets)
+	return c.Render(http.StatusOK, "test_tweets.html", tweets)
 }
 
 // TweetTempete はツイートの情報

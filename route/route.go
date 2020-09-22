@@ -6,6 +6,8 @@ import (
 
 	session "github.com/ipfans/echo-session"
 
+    "time"
+    "github.com/tylerb/graceful"
 	"github.com/labstack/echo"
 
 	"go_sample/app"
@@ -25,7 +27,6 @@ func Route() {
 
 	e.Static("/css", "public/views/css")
 	e.Static("/js", "public/views/js")
-	e.File("/header.png", "public/views/header.png")
 
 	e.Renderer = t
 
@@ -37,13 +38,15 @@ func Route() {
 
 	e.GET("/", page.Index)
 	e.GET("/tweet", page.Tweet)
-	e.GET("/auth", app.AuthTwitter)
+    e.GET("/auth", app.AuthTwitter)
+    e.GET("/timeline", app.Timeline)
 	e.GET("/callback", app.Callback)
 	e.POST("/check", app.HasCookie)
 	e.POST("/post", app.PostTwitterAPI)
-	e.POST("/replace", replace.ReplaceMessage)
+    e.POST("/replace", replace.ReplaceMessage)
+    e.GET("/logout", page.Logout)
 
-	e.GET("/", hello.SayHello)
+	e.GET("/hello", hello.SayHello)
 	e.POST("/test_tweet", twitter.Serach)
 	e.GET("/test_tweet", serach.Tweet)
 	e.GET("/test_tweets", serach.Tweets)
@@ -59,14 +62,11 @@ func Route() {
 	// $ curl -X POST http://localhost:8081/api/remove -d 'name=名前'
 	e.POST("/api/remove", ob.Remove)
 
-    // サーバー起動
-    e.Logger.Fatal(e.Start(":8080"))
+    // サーバーを開始
+    e.Server.Addr = ":8080"
 
-	// go func() {
-	// 	if err := e.Start(":8080"); err != nil {
-	// 		e.Logger.Info("shutting down the server")
-	// 	}
-	// }()
+    // Serve it like a boss
+    graceful.ListenAndServe(e.Server, 5*time.Second)
 }
 
 func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {

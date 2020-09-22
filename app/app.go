@@ -2,23 +2,28 @@ package app
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"net/http"
+    "fmt"
+    "io/ioutil"
+    "net/http"
+    "net/url"
+    "regexp"
+    "strings"
+    "time"
 
-	"github.com/ChimeraCoder/anaconda"
-	"github.com/garyburd/go-oauth/oauth"
-	session "github.com/ipfans/echo-session"
-	"github.com/labstack/echo"
+    "github.com/ChimeraCoder/anaconda"
+    "github.com/garyburd/go-oauth/oauth"
+    session "github.com/ipfans/echo-session"
+
+    "github.com/labstack/echo"
 )
 
-const url = "http://localhost:8080/callback"
+const localhost = "http://localhost:8080/callback"
 
 // ツイッターの認証開始
 func AuthTwitter(c echo.Context) error {
 	api := connectAPI()
 	// 認証
-	uri, _, error := api.AuthorizationURL(url)
+	uri, _, error := api.AuthorizationURL(localhost)
 	if error != nil {
 		fmt.Println(error)
 		return error
@@ -61,22 +66,53 @@ func HasCookie(c echo.Context) error {
 
 // ツイッター投稿
 func PostTwitterAPI(c echo.Context) error {
+	input := c.FormValue("input")
 	sess := session.Default(c)
 	token := sess.Get("token")
 	secret := sess.Get("secret")
+
+    writeCookie(c, "message", input)
+    reply := c.FormValue("reply")
+    writeCookie(c, "reply", reply)
+
 	if token == nil || secret == nil {
 		return c.JSON(http.StatusAccepted, "redirect")
 	}
 	api := anaconda.NewTwitterApi(token.(string), secret.(string))
 
 	message := c.FormValue("message")
-	tweet, error := api.PostTweet(message, nil)
+    v := make(url.Values)
+    if reply != "" {
+        r := regexp.MustCompile(`\w+`)
+        links := r.FindAllStringSubmatch(reply, -1)
+        if len(links) > 4 {
+            replyID := links[5][0]
+            userID := links[3][0]
+            message = "@" + userID + "\n" + message
+            v.Add("in_reply_to_status_id", replyID)
+        }
+    }
+    image := c.FormValue("image")
+    if image != "" {
+        b64data := image[strings.IndexByte(image, ',')+1:]
+        if b64data != "" {
+            media, error := api.UploadMedia(b64data)
+            if error != nil {
+                fmt.Println(error)
+                return error
+            }
+            v.Add("media_ids", media.MediaIDString)
+        }
+	}
+
+	tweet, error := api.PostTweet(message, v)
 	if error != nil {
 		fmt.Println(error)
 		return c.JSON(http.StatusAccepted, "redirect")
 	}
 	link := "https://twitter.com/" + tweet.User.IdStr + "/status/" + tweet.IdStr
-
+	clearCookie(c, "message")
+    clearCookie(c, "reply")
 	return c.JSON(http.StatusOK, link)
 }
 
@@ -97,6 +133,23 @@ func connectAPI() *anaconda.TwitterApi {
 
 	// 認証
 	return anaconda.NewTwitterApi("", "")
+}
+
+func writeCookie(c echo.Context, name string, value string) {
+    cookie := new(http.Cookie)
+    cookie.Name = name
+    cookie.Value = value
+    cookie.Expires = time.Now().Add(24 * time.Hour)
+    cookie.Path = "/"
+    c.SetCookie(cookie)
+}
+
+func clearCookie(c echo.Context, name string) {
+    cookie := new(http.Cookie)
+    cookie.Name = name
+    cookie.Value = ""
+    cookie.Path = "/"
+    c.SetCookie(cookie)
 }
 
 type Account struct {
