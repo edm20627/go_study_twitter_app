@@ -11,10 +11,10 @@ import (
 	"go_sample/app"
 	"go_sample/page"
 	"go_sample/replace"
-	// "go_sample/hello"
-	// "go_sample/serach"
-	// "go_sample/twitter"
-	// "go_sample/ob"
+	"go_sample/hello"
+	"go_sample/serach"
+	"go_sample/twitter"
+	"go_sample/ob"
 )
 
 func Route() {
@@ -43,23 +43,25 @@ func Route() {
 	e.POST("/post", app.PostTwitterAPI)
 	e.POST("/replace", replace.ReplaceMessage)
 
-	// e.GET("/", hello.SayHello)
-	// e.POST("/tweet", twitter.Serach)
-	// e.GET("/tweet", serach.Tweet)
-	// e.GET("/tweets", serach.Tweets)
-	// // $ curl -X POST http://localhost:8081/api/add -H 'Content-Type: application/json' -d '{ "name": "名前" , "Description": "解説"}'
-	// e.POST("/api/add", ob.AddFavorite)
-	// // $ curl -X POST http://localhost:8081/api/find -d 'name=名前'
-	// // $ curl -X POST http://localhost:8081/api/find -d 'description=解説'
-	// // $ curl -X POST http://localhost:8081/api/find -d 'keyword=キーワード'
-	// e.POST("/api/find", ob.Find)
-	// // $ curl -X POST http://localhost:8081/api/update -d 'name=名前&description=解説　更新'
-	// e.POST("/api/update", ob.Update)
-	// e.GET("/api/get/all", ob.GetAll)
-	// // $ curl -X POST http://localhost:8081/api/remove -d 'name=名前'
-	// e.POST("/api/remove", ob.Remove)
+	e.GET("/", hello.SayHello)
+	e.POST("/test_tweet", twitter.Serach)
+	e.GET("/test_tweet", serach.Tweet)
+	e.GET("/test_tweets", serach.Tweets)
+	// $ curl -X POST http://localhost:8081/api/add -H 'Content-Type: application/json' -d '{ "name": "名前" , "Description": "解説"}'
+	e.POST("/api/add", ob.AddFavorite)
+	// $ curl -X POST http://localhost:8081/api/find -d 'name=名前'
+	// $ curl -X POST http://localhost:8081/api/find -d 'description=解説'
+	// $ curl -X POST http://localhost:8081/api/find -d 'keyword=キーワード'
+	e.POST("/api/find", ob.Find)
+	// $ curl -X POST http://localhost:8081/api/update -d 'name=名前&description=解説　更新'
+	e.POST("/api/update", ob.Update)
+	e.GET("/api/get/all", ob.GetAll)
+	// $ curl -X POST http://localhost:8081/api/remove -d 'name=名前'
+	e.POST("/api/remove", ob.Remove)
 
-	e.Logger.Fatal(e.Start(":8080"))
+    // サーバー起動
+    e.Logger.Fatal(e.Start(":8080"))
+
 	// go func() {
 	// 	if err := e.Start(":8080"); err != nil {
 	// 		e.Logger.Info("shutting down the server")
