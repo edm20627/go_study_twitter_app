@@ -3,19 +3,21 @@ version: '3'
 services:
     app:
         build:
-            context: ./docker/golang
+            context: .
+            dockerfile: ./docker/golang/Dockerfile
         tty: true
         environment:
             - TZ=Japan
         volumes:
             - .:/go/src
         ports:
-            - 8081:8080
+            - 8080:8080
         depends_on:
             - mysql
     mysql:
         build:
-            context: ./docker/mysql
+            context: .
+            dockerfile: ./docker/mysql/Dockerfile
         environment:
             - TZ=Japan
             - MYSQL_ROOT_PASSWORD=root
