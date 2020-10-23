@@ -1,3 +1,2 @@
-# go_study_web_application
+# go_study_twitter_app
 - webアプリケーション勉強用
-- 参考：Goプログラミング実践入門
